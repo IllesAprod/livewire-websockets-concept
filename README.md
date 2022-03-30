@@ -1,4 +1,4 @@
-# Scaling WebSockets horizontally
+# Livewire websockets concepts
 
 I wanted to have a well-deserved sleep after yesterday's workday, but my mind keep asked questions: "Did I find the right solution? Is there a suitable solution? Am I missing something? Since I'm not a DevOps person, it was tough for me, but it was the right time to ask one of my best friends. Google. After a bunch of searching, things started to get more precise.
 
