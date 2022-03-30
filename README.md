@@ -11,7 +11,9 @@ Mark told this concept that it would be nice if, in the future, we could replace
 - We have to change the implementation of sending events and receiving HTML from HTTP to WebSockets in Livewire
 - We also need a workaround to use Livewire as an SPA because navigating through pages in Livewire makes full-site reloads, which will always result in closing the WS connection than opening a new one. Possible workarounds could be making a Livewire Router package, which automatically sets URL in JS and displays components based on the current route, or we can make a Livewire Web Worker package that will handle WebSocket connections in a Web Worker preventing the reconnection on every reload.
 
-The biggest question is still how to scale WebSockets horizontally? Let's assume we have made contributions to Livewire to be able to use WebSockets instead of HTTP requests. Does this kind of use of WebSockets need to be scaled horizontally? I think the answer is no because always the closest Laravel node will render our HTML, and this HTML doesn't have to be distributed to other nodes. Of course, there is this exception; what if our app has some collaborative features? How would that work? Before we dive into that, let's see a chart explaining the Livewire WebSockets concept.
+__The biggest question is still how to scale WebSockets horizontally?__
+
+Let's assume we have made contributions to Livewire to be able to use WebSockets instead of HTTP requests. Does this kind of use of WebSockets need to be scaled horizontally? I think the answer is no because always the closest Laravel node will render our HTML, and this HTML doesn't have to be distributed to other nodes. Of course, there is this exception; what if our app has some collaborative features? How would that work? Before we dive into that, let's see a chart explaining the Livewire WebSockets concept.
 
 ![livewire-websockets.png](./livewire-websockets.png)
 
@@ -19,13 +21,13 @@ The biggest question is still how to scale WebSockets horizontally? Let's assume
 
 The second concept was the "Online Status" feature, which shows who is currently online in the application, just as Slack or Discord do. When somebody is connected or disconnected, a message must be distributed worldwide to every node. In the briefing, Michael mentioned that Phoenix Pub/Sub has this feature, where the nodes connect and can send messages blazingly fast between each other. The magic here is that there isn't a primary server where every message has to arrive to be distributed. When a node receives a message, it sends it forward to all other nodes. But the typical Laravel developer is not familiar with Elixir and Phoenix Pub/Sub (even if it can be somehow hidden), so we have to find a Laravel way to do this.
 
-![soketi.png](./soketi.png)
-
 ### Ratchet
 This package is a PHP WebSocket server implementation. Laravel Websockets use this under the hood. The main problem is that it doesn't provide a horizontal scaling solution. I have seen a few GitHub issues about the topic, but they are all outdated. [One of the developers](https://github.com/ratchetphp/Ratchet/issues/363#issuecomment-168031202) made the horizontal scaling by creating a primary node, and all of the nodes then connected to it using the [PAWL](https://github.com/ratchetphp/Pawl) package. I see the possibility of implementing a horizontal scaling solution to Ratchet, but it would be a lot of work. If we need to go to a native PHP way, this would be that.
 
 ### Soketi
 Then I found Soketi, which is a node.js WebSocket server implementation. The creator of the package made many contributions to the Laravel WebSockets package. Also, Soketi is one of the preferred ways for the WebSocket server in the Laravel docs. It provides multiple horizontal scaling solutions, using Redis or NATS (Michael talked about that) or even Private Network Cluster. As far as I understand, the last option is similar to how Phoenix Pub/Sub works under the hood. The protocol is decentralized, which means there is no primary node and can work only under the same private network. If I'm right, this is a thing that can be done using Fly.io since all the nodes can communicate with each other. So how would this implementation look without Livewire?
+
+![soketi.png](./soketi.png)
 
 ## Merge
 
